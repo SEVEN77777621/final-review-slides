@@ -1,0 +1,41 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=22mm]{geometry}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\usepackage{amsmath,booktabs,hyperref}
+
+% 五色编码样式（预检彩色标签 / 框体可正常编译）
+\input{color-style.tex}
+
+\setmainfont{TeX Gyre Termes}
+\setCJKmainfont{Noto Serif CJK SC}
+\begin{document}
+\section*{Build smoke test / 构建预检}
+English, 中文，and inline mathematics $E=mc^2$.
+\[
+  \Pr(A\mid B)=\frac{\Pr(B\mid B)}{1}\quad \sum_{i=1}^{n} i
+\]
+
+\colorLegend
+
+\tagConcept{概念}基础概念示例。\tagNumber{数字}\numBadge{10\,kg} 指标示例。
+
+\begin{trapbox}
+  \tagTrap{坑点}彩色坑点框示例。
+\end{trapbox}
+\begin{conclbox}
+  \tagConclusion{结论}彩色结论框示例。
+\end{conclbox}
+
+\begin{tabular}{ll}
+  \toprule
+  Item & Status \\
+  \midrule
+  Text / 文本 & OK \\
+  Math / 公式 & OK \\
+  Color / 五色样式 & OK \\
+  \bottomrule
+\end{tabular}
+
+\href{https://example.com}{Link test}
+\end{document}

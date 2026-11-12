@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<!--
+  review-template.html — 五色记忆编码 · 单文件彩色速记讲义模板（HTML 支线）
+  语义与 PDF/docx 支线一致：
+    蓝 concept 基础概念   绿 number 必背数字   橙 mechanism 机制逻辑
+    红 trap 高频坑点       黄 conclusion 核心结论
+  用法：
+    1. 复制本文件，改 <title>、hero 标题/副标题；
+    2. 按章节复制一个 section.card 块，id 依次 s1、s2… 且唯一；
+    3. 顶部 .nav 胶囊按钮 href="#sN" 与各 section id 一一对应；
+    4. 删除示例内容，填入按源材料整理的考点；数字/剂量/阈值包 .num-pill；
+    5. 单文件自包含：CSS/JS 全部内联，不拆外部 js/css，不用框架。
+  颜色类别 → CSS 类对照：
+    concept   = .tag.blue   / .t-blue
+    number    = .tag.green  / .num-pill / .t-green
+    mechanism = .tag.orange / .t-orange
+    trap      = .tag.red    / .t-red    / .warn
+    conclusion= .tag.yellow / .t-yellow / .tip
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>课程复习 · 彩色速记讲义</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%233A6EA5'/%3E%3Cpath d='M7 12l3.5 3.5L17 9' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#F7F5F0; --card:#FFFFFF; --ink:#26303A; --sub:#5E6873; --line:#EAE5DB;
+  --blue:#3A6EA5; --blue-bg:#EAF2FA;
+  --green:#2E9E6B; --green-bg:#E7F4EC;
+  --orange:#E08A3C; --orange-bg:#FBEFE1;
+  --red:#CF5148; --red-bg:#FBECEA;
+  --yellow:#A8842A; --yellow-bg:#FCF4DB;
+  --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Noto Sans CJK SC","Source Han Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  line-height:1.95; font-size:15.5px;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:880px;margin:0 auto;padding:0 16px 60px}
+
+/* 顶部标题 + 图例 */
+.hero{padding:32px 0 16px}
+.hero h1{font-size:25px;font-weight:800;letter-spacing:.4px}
+.hero .sub{margin-top:8px;color:var(--sub);font-size:14px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.legend .chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 12px;border-radius:999px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.c-blue{background:var(--blue)} .c-green{background:var(--green)}
+.c-orange{background:var(--orange)} .c-red{background:var(--red)} .c-yellow{background:var(--yellow)}
+.t-blue{color:var(--blue)} .t-green{color:var(--green)} .t-orange{color:var(--orange)}
+.t-red{color:var(--red)} .t-yellow{color:var(--yellow)}
+
+/* 吸顶胶囊导航（锚点跳转） */
+.nav{position:sticky;top:0;z-index:20;background:rgba(247,245,240,.94);backdrop-filter:blur(8px);
+  padding:10px 0;margin:10px 0 22px;border-bottom:1px solid var(--line)}
+.nav-inner{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav a{flex:0 0 auto;font-size:13px;font-weight:600;color:var(--sub);text-decoration:none;
+  padding:8px 13px;border-radius:999px;background:var(--card);border:1px solid var(--line);
+  transition:background .15s,color .15s}
+.nav a:active,.nav a:focus{background:var(--blue-bg);color:var(--blue)}
+
+/* 章节卡片 */
+.card{background:var(--card);border-radius:var(--radius);margin-bottom:26px;overflow:hidden;
+  border:1px solid var(--line);box-shadow:0 2px 10px rgba(60,50,30,.07)}
+.card-head{display:flex;align-items:center;gap:13px;padding:20px 22px;cursor:pointer;user-select:none}
+.card-head .num{flex:0 0 auto;width:33px;height:33px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:15px;color:#fff}
+.card-head h2{font-size:17.5px;font-weight:700;flex:1 1 auto}
+.card-head .arrow{flex:0 0 auto;color:var(--sub);transition:transform .2s;font-size:13px}
+.card.collapsed .card-body{display:none}
+.card.collapsed .arrow{transform:rotate(-90deg)}
+.card-body{padding:4px 22px 24px}
+
+/* 卡片左侧主色条：按本节主基调挂一色 */
+.k-blue{border-left:4px solid var(--blue)}
+.k-green{border-left:4px solid var(--green)}
+.k-orange{border-left:4px solid var(--orange)}
+.k-red{border-left:4px solid var(--red)}
+.k-yellow{border-left:4px solid var(--yellow)}
+
+.block{margin-top:20px}
+.block-title{font-size:13.5px;font-weight:700;color:var(--sub);letter-spacing:.5px;margin-bottom:11px;padding-left:10px;border-left:3px solid var(--line)}
+ul.pt{list-style:none}
+ul.pt li{position:relative;padding-left:20px;margin:13px 0}
+ul.pt li::before{content:"";position:absolute;left:2px;top:13px;width:7px;height:7px;border-radius:2px;background:var(--line)}
+
+/* 并列要点双列卡 */
+.kv{display:grid;grid-template-columns:1fr;gap:13px;margin-top:8px}
+@media(min-width:600px){.kv{grid-template-columns:1fr 1fr}}
+.kv .item{background:var(--bg);border-radius:13px;padding:15px 17px}
+.kv .item .name{font-weight:700;font-size:14.5px}
+.kv .item .desc{color:var(--sub);font-size:13.5px;margin-top:5px;line-height:1.8}
+
+/* 行内定性标签 */
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px;margin-right:6px}
+.tag.blue{background:var(--blue-bg);color:var(--blue)}
+.tag.green{background:var(--green-bg);color:var(--green)}
+.tag.orange{background:var(--orange-bg);color:var(--orange)}
+.tag.red{background:var(--red-bg);color:var(--red)}
+.tag.yellow{background:var(--yellow-bg);color:var(--yellow)}
+
+/* 数字 / 剂量 / 阈值徽章 */
+.num-pill{display:inline-block;font-weight:800;color:var(--green);background:var(--green-bg);
+  border-radius:6px;padding:0 7px;font-size:14px}
+
+/* 坑点框（红）/ 结论框（黄） */
+.warn{background:var(--red-bg);border-left:3px solid var(--red);border-radius:12px;padding:15px 17px;margin-top:18px}
+.warn .wt{font-weight:700;color:var(--red);font-size:13.5px;margin-bottom:6px}
+.warn p{font-size:14px;line-height:1.85}
+.tip{background:var(--yellow-bg);border-left:3px solid var(--yellow);border-radius:12px;padding:15px 17px;margin-top:18px}
+.tip .wt{font-weight:700;color:var(--yellow);font-size:13.5px;margin-bottom:6px}
+.tip p{font-size:14px;line-height:1.85}
+
+/* 流程链（橙） */
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:16px 0}
+.flow .step{background:var(--orange-bg);color:var(--orange);font-weight:700;font-size:13.5px;padding:9px 13px;border-radius:10px}
+.flow .arr{color:var(--sub);font-weight:700}
+
+/* 对比表 */
+.ctable{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+.ctable th,.ctable td{border:1px solid var(--line);padding:12px 13px;vertical-align:top;text-align:left;line-height:1.8}
+.ctable th{background:var(--bg);font-weight:700}
+.ctable td:first-child{font-weight:600;white-space:nowrap}
+
+/* 公式块（绿） */
+.formula{background:var(--green-bg);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:14px}
+.formula .f{font-weight:700;color:var(--green);margin:4px 0}
+
+.kv,.kv .item,.flow,.flow .step{min-width:0}
+.block,.kv .item,.warn,.tip{overflow-wrap:break-word;word-break:break-word}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:10px}
+.ctable{table-layout:fixed;min-width:460px}
+
+.footer{margin-top:30px;text-align:center;color:var(--sub);font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>课程名 · 复习范围</h1>
+    <p class="sub">章节线索引 ｜ 按源材料顺序整理 ｜ 考点带五色标注</p>
+    <div class="legend">
+      <span class="chip" style="background:var(--blue-bg)"><span class="dot c-blue"></span>基础概念</span>
+      <span class="chip" style="background:var(--green-bg)"><span class="dot c-green"></span>必背数字</span>
+      <span class="chip" style="background:var(--orange-bg)"><span class="dot c-orange"></span>机制逻辑</span>
+      <span class="chip" style="background:var(--red-bg)"><span class="dot c-red"></span>高频坑点</span>
+      <span class="chip" style="background:var(--yellow-bg)"><span class="dot c-yellow"></span>核心结论</span>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#s1">章节一</a>
+      <a href="#s2">章节二</a>
+      <!-- 每个章节一个胶囊按钮，href 对应 section id -->
+    </div>
+  </nav>
+
+  <!-- ===== 示例章节 1：概念 + 数字 + 双列要点 ===== -->
+  <section class="card k-blue" id="s1">
+    <div class="card-head" onclick="toggleCard(this)">
+      <span class="num" style="background:var(--blue)">1</span>
+      <h2>章节标题（示例）</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="block">
+        <ul class="pt">
+          <li><span class="tag blue">概念</span><b class="t-blue">核心名词：</b>定义或原文表述，后接一句解释。</li>
+          <li><span class="tag green">数字</span>必背数值用 <span class="num-pill">示例 100 mg/dl</span> 徽章标出；时限、百分位、浓度同理。</li>
+          <li><span class="tag orange">机制</span><b class="t-orange">因果/分型/部位：</b>机制链条、分型归类、部位顺序用橙色。</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="block-title">并列要点（示例）</div>
+        <div class="kv">
+          <div class="item"><div class="name t-blue">要点 A</div><div class="desc">名称 + 简要说明；关键数字包徽章。</div></div>
+          <div class="item"><div class="name t-orange">要点 B</div><div class="desc">并列项在宽屏两列，窄屏自动单列。</div></div>
+        </div>
+      </div>
+      <div class="formula">
+        <div class="f">公式 / 取值（示例）</div>
+        <div>变量含义、适用条件与一个应用示例。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 示例章节 2：坑点框 + 结论框 + 流程链 + 对比表 ===== -->
+  <section class="card k-red" id="s2">
+    <div class="card-head" onclick="toggleCard(this)">
+      <span class="num" style="background:var(--red)">2</span>
+      <h2>坑点与辨析（示例）</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="block">
+        <div class="block-title">流程 / 顺序（示例）</div>
+        <div class="flow">
+          <span class="step">第一步</span><span class="arr">→</span>
+          <span class="step">第二步</span><span class="arr">→</span>
+          <span class="step">第三步</span>
+        </div>
+      </div>
+      <div class="warn">
+        <div class="wt">高频坑点 / 禁忌（示例）</div>
+        <p>易错点、边界条件、禁忌或重度危险表现；首选药与禁忌在此用 <b class="t-red">红色加粗</b>，剂量用 <span class="num-pill">绿色徽章</span>。</p>
+      </div>
+      <div class="tip">
+        <div class="wt">一句话主线 / 核心结论（示例）</div>
+        <p>节末最该记住的定性总结或记忆口诀，用黄色结论框承载。</p>
+      </div>
+      <div class="block">
+        <div class="block-title">鉴别对比（示例）</div>
+        <div class="table-scroll">
+          <table class="ctable">
+            <colgroup><col style="width:28%"><col style="width:36%"><col style="width:36%"></colgroup>
+            <thead><tr><th>对比项</th><th>情形一</th><th>情形二</th></tr></thead>
+            <tbody>
+              <tr><td>要点</td><td>鉴别线索与结论</td><td>鉴别线索与结论</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">内容依据课堂/教材笔记整理，考前结合教材核对 ｜ 点击卡片标题可折叠/展开</footer>
+</div>
+
+<script>
+function toggleCard(head){
+  head.parentElement.classList.toggle('collapsed');
+}
+</script>
+</body>
+</html>

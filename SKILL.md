@@ -1,0 +1,192 @@
+---
+name: final-review-slides
+description: Create Chinese-, English-, or bilingual final-exam review packs and source-grounded mock exams from PDF/PPTX lecture decks, including mixed-language slides, Revision/Review decks, syllabi, assignments, quizzes, and past exams. Use for 期末复习, 课件总结, 考点整理, 模拟题, final review notes, formula/concept sheets, misconception guides, or source-cited exam preparation materials. Outputs use a fixed five-color memory scheme (concept/number/mechanism/trap/conclusion) across color-coded PDF packs, editable Word (.docx) handouts, and a single-file HTML quick-review handout. Preserve lecture and slide order, inspect visual evidence, retain LaTeX sources, and apply strict coverage, depth, assessment, and rendering gates.
+---
+
+# Final Review Slides
+
+Build a source-traceable exam pack without reordering or silently omitting course material. Use the `pdf` and `presentations` skills for format-specific intake and rendering; follow their render-and-verify requirements.
+
+## Required deliverables
+
+Unless the user explicitly changes the outputs, create:
+
+- `final-review.tex` and `final-review.pdf`: complete lecture-by-lecture review in source order.
+- `quick-reference.tex` and `quick-reference.pdf`: formulas, symbols, conditions, concepts, and fast lookup tables.
+- `mistakes-and-distinctions.tex` and `mistakes-and-distinctions.pdf`: misconceptions, confusable concepts, invalid shortcuts, and diagnostic comparisons.
+- `coverage-report.md`: source inventory, ordering basis, page/slide coverage, visual-check status, exclusions, uncertainties, and quality-gate verdicts.
+- `course-map.json` and `course-map.mmd`, plus a rendered course map used in `final-review.pdf`.
+
+The core review defaults to three carriers with the same five-color kind mapping:
+
+- **PDF**: the three core `.tex`/`.pdf` above, styled by `assets/color-style.tex`.
+- **Word**: one editable `.docx` handout via `scripts/color_docx.py` (same five-color scheme, opens and edits directly in Word).
+- **HTML**: one self-contained `review.html` quick-review handout from `assets/review-template.html`, following `references/html-color-review.md`; when requested, publish it to a shareable online link per the publishing steps in that reference.
+
+`quick-reference` and `mistakes-and-distinctions` follow the same Word/HTML carriers when the user asks, or when their lookup/comparison content benefits from a second format.
+
+When Revision/Review, assignments, quizzes, midterms, past exams, or an explicit mock-exam request supplies enough assessment evidence, also create:
+
+- `mock-exam.tex` and `mock-exam.pdf`: new questions or source-grounded variants without answers; also produce `mock-exam.docx` and `mock-exam.html` question papers with the same five-color scheme.
+- `mock-exam-solutions.tex` and `mock-exam-solutions.pdf`: model solutions, marking points, common errors, difficulty, assessed concepts, and citations; also produce `mock-exam-solutions.docx` and `mock-exam-solutions.html` as a separate answer booklet.
+- `mock-exam-blueprint.md`: scope, evidence basis, topic/type/difficulty/mark allocation, and validation results.
+
+Keep generated files and intermediates in one dedicated output directory. Preserve `.tex` sources. Do not claim completion unless all required files exist, all PDFs compile successfully, and rendered PDFs pass visual inspection.
+
+## Intake contract
+
+Accept one or more `.pdf` or `.pptx` lecture decks. Also ingest, when supplied:
+
+- Revision/Review/Final Review decks
+- syllabus or course outline
+- assignments and homework
+- quizzes and midterms
+- past exams and answer keys
+
+Accept `language: auto | zh | en | bilingual`. Do not block when the user omits it: default `auto` to Chinese explanations while retaining English definitions, technical terms, proper names, abbreviations, variables, and exam-relevant original wording. If the user requests “follow the source”, use the detected dominant language. Record the resolved mode in `coverage-report.md`.
+
+Accept `depth: concise | comprehensive | deep`; default to `comprehensive`. `final-review` is a teaching document, not a compressed outline. The depth option does not authorize omissions.
+
+Read [bilingual-writing.md](references/bilingual-writing.md) when deciding terminology. Read [source-and-priority.md](references/source-and-priority.md) before assigning exam importance. Read [output-schemas.md](references/output-schemas.md) before drafting. Read [build-and-render.md](references/build-and-render.md) before creating full drafts. Read [quality-gates.md](references/quality-gates.md) before verification. Read [html-color-review.md](references/html-color-review.md) before producing the HTML handout.
+
+## Workflow
+
+### 0. Preflight the build environment
+
+Before deep extraction or drafting, copy and compile `assets/build-smoke-test.tex`. It tests Chinese, English, mathematics, tables, and hyperlinks. Select a working PDF backend using [build-and-render.md](references/build-and-render.md), record the result, and test Mermaid or its PDF-native fallback at the same time.
+
+Do not process the full course before discovering that the requested deliverables cannot be built. If no PDF backend works, stop early and ask whether the user accepts a source-only delivery; do not silently downgrade.
+
+### 1. Inventory and classify
+
+Create a source inventory before summarizing. For every file record its path, type, apparent role, lecture identifier, title, page/slide count, language, and ordering evidence.
+
+Classify files as lecture, review, syllabus, assignment, quiz/exam, answer key, or unknown. Search case-insensitively for `revision`, `review`, `final review`, `recap`, `summary`, `复习`, `总复习`, `考试重点`, and equivalent content signals. Confirm candidates from their contents rather than filenames alone.
+
+Resolve lecture order using, in priority order: explicit syllabus schedule, lecture numbering inside the deck, dates, internal prerequisite statements, then filenames. Report missing, duplicate, or ambiguous items. Never silently guess an uncertain order.
+
+### 2. Establish assessment evidence
+
+Read the syllabus and review materials before deep chapter drafting. Extract explicit scope, exclusions, weights, formats, named topics, instructor warnings, and emphasized formulas. Then inspect assignments, quizzes, and past exams for recurring assessed skills.
+
+Separate evidence labels:
+
+- `Explicit`: directly stated by the instructor or assessment material.
+- `Observed`: recurring in assignments, quizzes, or past exams.
+- `Inferred`: predicted from repetition, examples, summaries, or dependencies.
+
+Never present an inferred exam point as instructor-confirmed. If sources conflict, report the conflict with citations instead of choosing silently.
+
+### 3. Build a global map
+
+Read all decks broadly before writing chapter summaries. Identify major themes, subtopics, prerequisites, formula-heavy regions, examples, and assessment links.
+
+Create one canonical `course-map.json`, then derive `course-map.mmd` as a Mermaid mind map showing course → major themes → subtopics → lecture identifiers. The map may show conceptual dependencies, but the written review must retain original lecture order.
+
+Use a privacy-safe rendering ladder: (1) use a trusted local Mermaid renderer when its browser runtime is permitted; (2) otherwise derive a PDF-native LaTeX hierarchy/tree from the same JSON and embed it, while preserving `.mmd`; (3) use a remote renderer only with explicit user consent because it transmits course structure. Never bypass the sandbox. Mermaid image rendering is conditional; an embedded map consistent with the canonical JSON is mandatory.
+
+### 4. Build the coverage ledger
+
+Create one ledger row for every source page or PPTX slide. At minimum record:
+
+`source_id`, `lecture_id`, `page_or_slide`, `topic`, `concept_id`, `importance`, `disposition`, `summary_location`, `explanation_depth`, `visual_check`, `citation`, `notes`.
+
+Allowed dispositions are `covered`, `duplicate`, `administrative`, `blank`, and `uncertain`. Every row must have a disposition. `duplicate`, `administrative`, and `blank` require a short reason; `uncertain` blocks completion until resolved or explicitly accepted by the user.
+
+Use `scripts/validate_coverage.py` to validate the machine-readable CSV ledger before finalization.
+
+### 5. Summarize in strict source order
+
+Write `final-review` by lecture order, then by page/slide order within each lecture. Do not reorganize the main chapters for thematic elegance. Handle cross-links with “see Lecture X” references rather than moving content.
+
+For each chapter include, where supported:
+
+- learning focus and assessment relevance
+- definitions and core concepts
+- formulas with symbol meanings, assumptions, and conditions
+- methods or derivations in their presented order
+- representative worked-example patterns
+- links to assignments, quizzes, or past exams
+- likely traps and distinctions
+- tight page/slide citations
+
+For every substantive core concept, explain rather than merely name it: definition or preserved original wording; intuition and purpose; mechanism, derivation, or steps; assumptions and boundary conditions; a representative example or exam application; failure/attack mode where relevant; distinctions from nearby concepts; and tight citations. Formula entries must define variables and conditions and include an application. Algorithms and protocols must preserve their sequence or message flow. Charts and tables must explain axes/headers, encodings, trend or relationship, and the supported conclusion.
+
+Tag each point with its five-color category (see [Color coding](#color-coding--五色记忆编码)): concepts blue, numbers green, mechanisms orange, traps red, conclusions yellow. Put traps in red boxes and conclusions/mnemonics in yellow boxes.
+
+Every explicit Revision topic needs a complete explanation. A ledger row is not “covered” merely because its title or keywords appear. Use the selected depth consistently and record it in the ledger.
+
+Compress duplicates but retain citations to every occurrence. Never drop later lectures because of context limits; segment the work and merge only after every ledger range has been processed.
+
+### 6. Inspect visual evidence
+
+Render and inspect source pages/slides when they contain formulas, derivations, tables, charts, diagrams, spatial annotations, low extracted-text density, OCR anomalies, or layout-dependent meaning.
+
+Verify subscripts, superscripts, operators, matrices, arrows, axes, legends, table row/column relations, color semantics, and animation-like incremental slides. Mark each inspected item in the ledger. Do not reconstruct unreadable mathematics or diagrams from guesswork.
+
+### 7. Derive the companion documents
+
+Generate `quick-reference` and `mistakes-and-distinctions` from the verified chapter notes and source evidence, not from memory alone. These documents may reorganize content for lookup, but every entry must retain lecture/page citations.
+
+Do not omit non-formula courses from `quick-reference`; use definitions, frameworks, cases, dates, vocabulary, or comparison tables as appropriate.
+
+### 8. Generate a source-grounded mock exam when applicable
+
+Read [mock-exam.md](references/mock-exam.md). Build the blueprint before drafting questions. Use evidence in this order for assessment shape: explicit Revision/syllabus rules, past exams, quizzes/assignments, then lecture examples. Preserve stated format and marks; disclose missing information rather than inventing instructor policy.
+
+Create new questions or meaningful variants by default. Keep answers separate. Cite sources in the solution document, not the question paper. Validate answerability, uniqueness of single-choice answers, numerical/protocol correctness, mark totals, topic balance, difficulty balance, and absence of unsupported content.
+
+### 9. Verify and build
+
+Run all gates in [quality-gates.md](references/quality-gates.md). A verifier must compare drafts against source pages and the coverage ledger, not merely review the prose.
+
+Use the backend selected during preflight. Prefer the Codex built-in LaTeX compiler when available, then a proven installed LaTeX engine. If dependencies fail, retry with the minimal template; if LaTeX remains unavailable, use a supported direct-PDF path through the PDF skill while preserving equivalent `.tex` sources. Never attempt network package installation without authorization.
+
+Render every generated PDF to images and inspect for missing glyphs, overflow, clipping, overlap, broken formulas, unreadable tables, and course-map placement. Fix and re-run checks until all blocking gates pass. Record the backend, template mode, missing dependencies, fallback attempts, and visual-QA evidence in `coverage-report.md`.
+
+For the HTML handout, verify tag pairing, unique section ids, that every nav anchor resolves, narrow-screen overflow, and color/contrast; inspect it by hiding other sections and rendering one section at a time (a full-page headless screenshot can overlap the tail). Record HTML QA evidence in `coverage-report.md`. When the handout is to be shared, publish it per §9 of `references/html-color-review.md` and record the returned `online_url`; deliver only that formal link, not a temporary file CDN address.
+
+## Color coding / 五色记忆编码
+
+Review materials use a fixed five-color scheme to help memorize by information type. The same color means the same category in every document; colors encode information type only, not decoration.
+
+| 颜色 | kind | 标注对象 | LaTeX（PDF） | docx（Word） | HTML |
+|---|---|---|---|---|---|
+| 蓝 | `concept` | 基础概念、定义、原文表述 | `\tagConcept{…}` | `add_tag(doc, "concept", …)` | `.tag.blue` / `.t-blue` |
+| 绿 | `number` | 必背数字、指标、公式取值 | `\tagNumber{…}` / `\numBadge{…}` | `add_tag(doc, "number", …)` / `badge(p, …)` | `.num-pill` / `.tag.green` / `.t-green` |
+| 橙 | `mechanism` | 机制、因果链、推导流程 | `\tagMechanism{…}` / `mechbox` | `add_tag(doc, "mechanism", …)` / `add_box(doc, "mechanism", …)` | `.tag.orange` / `.t-orange` / `.flow` |
+| 红 | `trap` | 高频坑点、易混概念、边界条件、反例 | `\tagTrap{…}` / `trapbox` | `add_box(doc, "trap", …)` | `.tag.red` / `.t-red` / `.warn` |
+| 黄 | `conclusion` | 核心结论、记忆口诀、一句话主线 | `\tagConclusion{…}` / `conclbox` | `add_box(doc, "conclusion", …)` | `.tag.yellow` / `.t-yellow` / `.tip` |
+
+Rules:
+
+- Tag each knowledge point by its nature; put every key figure/metric in a green number badge.
+- Traps and invalid shortcuts go in the red `trapbox`; conclusions and mnemonics in the yellow `conclbox`; causal chains and derivations in the orange `mechbox`.
+- PDF templates must `\input{color-style.tex}` before `\begin{document}`. Word handouts import `scripts/color_docx.py`; keep the same labels, badges, and box colors as the PDF.
+- HTML handouts are built from `assets/review-template.html`; keep the same labels, badges, boxes, and kind mapping, and follow `references/html-color-review.md` for layout, components, responsive rules, and segmented screenshot QA.
+- Do not introduce extra ad-hoc colors. If a category is missing, reuse the closest existing color and record it in `coverage-report.md`.
+
+## Citation format
+
+Use stable citations such as `[Lecture 04, p.17]`, `[Lecture 04, slides 17–19]`, `[Revision, p.8]`, or `[Quiz 2, Q3]`. Prefer exact pages; use tight ranges only for genuinely continuous material. Cite all sources when synthesizing across documents.
+
+## Completion rules
+
+Do not claim “no omissions” as an unsupported absolute. Report verified coverage numerically and disclose exclusions and uncertainties. Completion requires:
+
+- every source inventoried and ordered or explicitly unresolved
+- every page/slide represented in the coverage ledger
+- zero uncovered or uncertain ledger rows
+- all explicit review topics represented
+- all required visual pages checked
+- all citations sampled and validated
+- the three core `.tex` files and three successfully compiled, visually checked PDFs; one editable `.docx` handout and one self-contained `review.html` that passes the HTML gates in `references/html-color-review.md`
+- mock-exam artifacts when assessment evidence or the user request triggers them
+- canonical map JSON, Mermaid source, and a successfully embedded Mermaid or PDF-native fallback map
+- a complete `coverage-report.md` with PASS/FAIL results
+
+Report one overall delivery state:
+
+- `PASS`: all requested PDFs exist and pass visual QA.
+- `PARTIAL`: sources are complete but PDFs are absent, only when the user explicitly accepted source-only delivery after preflight.
+- `FAIL`: required PDFs or blocking verification remain unavailable.

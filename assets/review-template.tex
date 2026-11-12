@@ -1,0 +1,45 @@
+% Minimal XeLaTeX starter for final-review-slides artifacts (color-coded edition).
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=18mm]{geometry}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\usepackage{amsmath,amssymb,booktabs,longtable,array,graphicx,hyperref}
+
+% 五色记忆编码样式：定义蓝/绿/橙/红/黄标签、徽章、坑点/结论/机制框
+\input{color-style.tex}
+
+\setmainfont{TeX Gyre Termes}
+\setsansfont{TeX Gyre Heros}
+\setCJKmainfont{Noto Serif CJK SC}
+\hypersetup{colorlinks=true,linkcolor=pedsBlue,urlcolor=pedsBlue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+
+\begin{document}
+
+% ===== 标题区（替换为讲义标题与来源范围）=====
+\section*{复习讲义标题}
+\colorLegend
+
+% ===== 用法示例：生成正式内容时删除本段 =====
+\colorHead{pedsBlue}{板块小标题}
+
+\tagConcept{概念}基础概念定义，保留教材原文表述与适用范围。
+
+\tagNumber{数字}关键指标用 \numBadge{数字/单位} 标出，便于快速记忆。
+
+\begin{mechbox}
+  \tagMechanism{机制}因果链条：原因 \(\to\) 中间环节 \(\to\) 结果，按顺序写清推导。
+\end{mechbox}
+
+\begin{trapbox}
+  \tagTrap{坑点}高频错误、易混概念、边界条件与反例写在这里。
+\end{trapbox}
+
+\begin{conclbox}
+  \tagConclusion{结论}一句话主线、核心结论或记忆口诀写在这里。
+\end{conclbox}
+
+% 鉴别对照使用 longtable / tabular，列宽显式给出，避免窄列逐字折行。
+
+\end{document}

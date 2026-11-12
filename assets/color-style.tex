@@ -1,0 +1,63 @@
+% ============================================================
+% color-style.tex — 五色记忆编码样式（复刻儿科学彩色速记讲义）
+% 颜色语义：
+%   蓝 = 基础概念   绿 = 必背数字   橙 = 机制逻辑
+%   红 = 高频坑点  黄 = 核心结论
+% 引入方式：在 \documentclass 之后、\begin{document} 之前
+%           \input{color-style.tex}
+% 依赖：xcolor、tcolorbox（breakable 库）；XeLaTeX 编译中文。
+% ============================================================
+
+\RequirePackage{xcolor}
+\RequirePackage{tcolorbox}
+\tcbuselibrary{breakable}
+
+% ---- 深色（文字 / 边框）---- 与 docx / HTML 支线共用同一组 hex
+\definecolor{pedsBlue}{HTML}{3A6EA5}
+\definecolor{pedsGreen}{HTML}{2E9E6B}
+\definecolor{pedsOrange}{HTML}{E08A3C}
+\definecolor{pedsRed}{HTML}{CF5148}
+\definecolor{pedsYellow}{HTML}{A8842A}
+
+% ---- 浅色（标签底 / 框体底）----
+\definecolor{pedsBlueBg}{HTML}{EAF2FA}
+\definecolor{pedsGreenBg}{HTML}{E7F4EC}
+\definecolor{pedsOrangeBg}{HTML}{FBEFE1}
+\definecolor{pedsRedBg}{HTML}{FBECEA}
+\definecolor{pedsYellowBg}{HTML}{FCF4DB}
+
+% ---- 行内标签徽章 ----
+\newcommand{\tagConcept}[1]{\colorbox{pedsBlueBg}{\textcolor{pedsBlue}{\textbf{#1}}}\hspace{3pt}}
+\newcommand{\tagNumber}[1]{\colorbox{pedsGreenBg}{\textcolor{pedsGreen}{\textbf{#1}}}\hspace{3pt}}
+\newcommand{\tagMechanism}[1]{\colorbox{pedsOrangeBg}{\textcolor{pedsOrange}{\textbf{#1}}}\hspace{3pt}}
+\newcommand{\tagTrap}[1]{\colorbox{pedsRedBg}{\textcolor{pedsRed}{\textbf{#1}}}\hspace{3pt}}
+\newcommand{\tagConclusion}[1]{\colorbox{pedsYellowBg}{\textcolor{pedsYellow}{\textbf{#1}}}\hspace{3pt}}
+
+% ---- 必背数字徽章（行内强调数字 / 指标）----
+\newcommand{\numBadge}[1]{\colorbox{pedsGreenBg}{\textcolor{pedsGreen}{\textbf{#1}}}}
+
+% ---- 彩色小标题：\colorHead{pedsBlue}{标题文字} ----
+\newcommand{\colorHead}[2]{\noindent\textcolor{#1}{\textbf{#2}}\par\smallskip}
+
+% ---- 坑点框（红）：常见错误、易混、边界条件 ----
+\newtcolorbox{trapbox}{%
+  colback=pedsRedBg, colframe=pedsRed, breakable,
+  boxrule=0.6pt, arc=6pt, boxsep=0pt,
+  left=10pt, right=10pt, top=7pt, bottom=7pt}
+
+% ---- 结论框（黄）：一句话主线、核心结论、记忆口诀 ----
+\newtcolorbox{conclbox}{%
+  colback=pedsYellowBg, colframe=pedsYellow, breakable,
+  boxrule=0.6pt, arc=6pt, boxsep=0pt,
+  left=10pt, right=10pt, top=7pt, bottom=7pt}
+
+% ---- 机制链条框（橙，可选）：因果链、推导流程 ----
+\newtcolorbox{mechbox}{%
+  colback=pedsOrangeBg, colframe=pedsOrange, breakable,
+  boxrule=0.6pt, arc=6pt, boxsep=0pt,
+  left=10pt, right=10pt, top=7pt, bottom=7pt}
+
+% ---- 文档开头的五色图例 ----
+\newcommand{\colorLegend}{%
+  \tagConcept{基础概念}\tagNumber{必背数字}\tagMechanism{机制逻辑}%
+  \tagTrap{高频坑点}\tagConclusion{核心结论}}
